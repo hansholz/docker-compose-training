@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+ your_server:
+  build: hits
+  depends_on:
+   - redis
+  networks:
+   - public
+   - secret
+  volumes:
+   - logs:/flask/logs
+  deploy:
+   mode: replicated
+   replicas: 3
+ redis:
+  image: redis:alpine
+  volumes:
+   - redis-data:/data 
+  networks:
+   - secret
+ loadbalancer:
+  build: nginx
+  links:
+   - your_server
+  ports:
+   - "8000:80"
+  networks:
+   - public
+
+volumes:
+ redis-data:
+  driver: local
+ logs:
+  driver: local
+networks:
+ secret:
+  driver: bridge
+ public:
+  driver: bridge
